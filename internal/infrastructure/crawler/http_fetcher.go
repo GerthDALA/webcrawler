@@ -60,7 +60,7 @@ func (f *HTTPFetcher) Fetch(ctx context.Context, url *crawler.URL) result.Result
 	// Create a request
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.URL, nil)
 	if err != nil {
-		return result.Err[*crawler.Page]("error creating request: %webcrawlerw", err)
+		return result.Err[*crawler.Page](fmt.Errorf("error creating request: %w", err))
 	}
 
 	// Set headers
@@ -74,14 +74,14 @@ func (f *HTTPFetcher) Fetch(ctx context.Context, url *crawler.URL) result.Result
 	// Execute request
 	resp, err := f.client.Do(req)
 	if err != nil {
-		return result.Err[*crawler.Page](fmt.Sprintf("error fetching URL %s: %v", url.URL, err))
+		return result.Err[*crawler.Page](fmt.Errorf("error fetching URL %s: %v", url.URL, err))
 	}
 
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return result.Err[*crawler.Page](fmt.Sprintf("error reading response body for URL %s: %v", url.URL, err))
+		return result.Err[*crawler.Page](fmt.Errorf("error reading response body for URL %s: %v", url.URL, err))
 	}
 
 	//Extracts headers

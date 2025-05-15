@@ -46,7 +46,7 @@ func (f *URLFilter) ShouldCrawl(ctx context.Context, urlStr string, depth int) r
 
 	parsedURL, err := url.Parse(urlStr)
 	if err != nil {
-		return result.Error[bool](err)
+		return result.Err[bool](err)
 	}
 	
 	if f.maxURLLength > 0 && len(urlStr) > f.maxURLLength {
@@ -101,7 +101,7 @@ func (f *URLFilter) IsAllowedDomain(ctx context.Context, urlStr string ) result.
 
 	parsedURL, err := url.Parse(urlStr)
 	if err != nil {
-		return result.Error[bool](err)
+		return result.Err[bool](err)
 	}
 
 	if len(f.allowedDomains) == 0 {

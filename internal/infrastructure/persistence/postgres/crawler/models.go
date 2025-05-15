@@ -36,12 +36,12 @@ func NewDB(config DBConfig) result.Result[*gorm.DB] {
 
 	db, err := gorm.Open(postgres.Open(dsn), gormConfig)
 	if err != nil {
-		return result.Error[*gorm.DB](fmt.Errorf("failed to connect to database: %w", err))
+		return result.Err[*gorm.DB](fmt.Errorf("failed to connect to database: %w", err))
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return result.Error[*gorm.DB](fmt.Errorf("failed to get database connection: %w", err))
+		return result.Err[*gorm.DB](fmt.Errorf("failed to get database connection: %w", err))
 	}
 	sqlDB.SetMaxOpenConns(config.MaxOpenConns)
 	sqlDB.SetMaxIdleConns(config.MaxIdleConns)
