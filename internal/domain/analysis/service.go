@@ -116,3 +116,87 @@ func NewAnalysisService(
 		similarityCalculator: similarityCalculator,
 	}
 }
+
+// AnalyseContent performs full analysis on content
+func (s *AnalysisService) AnalyseContent(ctx context.Context, c *content.Content) result.Result[*content.Content] {
+	// Extrat embedding
+	embeddingResult := s.vectorizer.Vectorize(ctx, c.Text)
+	if embeddingResult.IsOk() {
+		c.SetVectorEmbedding(embeddingResult.Unwrap())
+	}
+
+	// Extract topics
+	topicsResult := s.topicModeler.ExtractTopics(ctx, c.Text, 5)
+	if topicsResult.IsOk() {
+		c.AddTopics(topicsResult.Unwrap())
+	}
+
+	// Extract named entities
+	entitiesResult := s.entityRecognizer.ExtractEntities(ctx, c.Text)
+	if entitiesResult.IsOk() {
+		c.AddNamedEntities(entitiesResult.Unwrap())
+	}
+
+	// Classify content
+	classificationResult := s.classifier.Classify(ctx, c.Text)
+	if classificationResult.IsOk() {
+		c.SetClassification(classificationResult.Unwrap())
+	}
+
+	// Summarize content
+	summaryResult := s.summarizer.Summarize(ctx, c.Text, 200)
+	if summaryResult.IsOk() {
+		c.SetSummary(summaryResult.Unwrap())
+	}
+
+	// Extract keywords
+	keywordsResult := s.keywordExtractor.ExtractKeywords(ctx, c.Text, 10)
+	if keywordsResult.IsOk() {
+		c.SetKeywords(keywordsResult.Unwrap())
+	}
+
+	// Detect language
+	languageResult := s.languageDetector.DetectLanguage(ctx, c.Text)
+	if languageResult.IsOk() {
+		c.SetLanguage(languageResult.Unwrap())
+	}
+	
+	// Analyze readability
+	readabilityResult := s.readabilityAnalyzer.AnalyzeReadability(ctx, c.Text)
+	if readabilityResult.IsOk() {
+		c.SetReadabilityScore(readabilityResult.Unwrap())
+	}
+	
+	// Count words
+	wordCountResult := s.readabilityAnalyzer.CountWords(ctx, c.Text)
+	if wordCountResult.IsOk() {
+		c.SetWordCount(wordCountResult.Unwrap())
+	}
+	
+	// Count sentences
+	sentenceCountResult := s.readabilityAnalyzer.CountSentences(ctx, c.Text)
+	if sentenceCountResult.IsOk() {
+		c.SetSentenceCount(sentenceCountResult.Unwrap())
+	}
+	
+	return result.Ok(c)
+
+}
+
+// FindSimilarContent finds content similar to the given content
+func (s *AnalysisService) FindSimilarContent(
+	ctx context.Context, 
+	embedding []float32, 
+	embeddings [][]float32,
+	limit int,
+) result.Result[[]int] {
+	return s.similarityCalculator.FindMostSimilar(ctx, embedding, embeddings, limit)
+}
+
+// CalculateContentSimilarity calculates similarity between two pieces of content
+func (s *AnalysisService) CalculateContentSimilarity(
+	ctx context.Context, 
+	a, b []float32,
+) result.Result[float64] {
+	return s.similarityCalculator.CalculateSimilarity(ctx, a, b)
+}
