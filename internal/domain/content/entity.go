@@ -123,12 +123,24 @@ const (
 	EntityTypeOther        EntityType = "other"
 )
 
+// NamedEntity represents a named entity found in content
 type NamedEntity struct {
 	ID        uuid.UUID
 	Text      string
-	Type      string
+	Type      EntityType
 	Count     int
-	Positions []int
+	Positions []int // character positions in the text
+}
+
+// NewNamedEntity creates a new NamedEntity
+func NewNamedEntity(text string, entityType EntityType, positions []int) NamedEntity {
+	return NamedEntity{
+		ID:        uuid.New(),
+		Text:      text,
+		Type:      entityType,
+		Count:     len(positions),
+		Positions: positions,
+	}
 }
 
 type Topic struct {
